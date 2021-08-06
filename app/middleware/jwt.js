@@ -1,6 +1,6 @@
 /**
- * 封装jwt
- * @param options
+ * 封装jwt鉴权
+ * @param options 请求入参
  */
 module.exports = options => {
 	return async function jwt(ctx, next) {
@@ -13,6 +13,8 @@ module.exports = options => {
 			} catch (e) {
 				ctx.status = 401;
 				ctx.body = {
+					code: 40001,
+					success: true,
 					message: '登录状态发生变化，请重新登录!'
 				};
 				return false;
@@ -20,6 +22,8 @@ module.exports = options => {
 		} else {
 			ctx.status = 401;
 			ctx.body = {
+				code: 40001,
+				success: true,
 				message: '登录状态已失效，请重新登录!'
 			};
 			return false;
