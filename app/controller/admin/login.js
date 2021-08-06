@@ -4,30 +4,34 @@ const Controller = require('../core/base_controller');
 
 // 定义创建接口的请求参数规则
 const loginRule = {
-	username: 'string',
-	password: 'string'
+	username: {type: 'string', required: true},
+	password: {type: 'string', required: true},
 };
 
 class LoginController extends Controller {
+	//登录
 	async index() {
 		const {ctx} = this;
-
+		let {username, password} = ctx.request.body;
 		//校验
-		ctx.validate(loginRule, ctx.request.body);
+		ctx.validate(loginRule, {username, password});
+		if (ctx.paramErrors) {
+			return ctx.fail(1, '请输入用户名或密码');
+		}
 
 		const userInfo = await this.service.admin.login.findUserByUserNameAndPassword({
-			username: ctx.request.body.username,
-			password: ctx.helper.getMd5Data(ctx.request.body.password)
+			username: username,
+			password: ctx.helper.getMd5Data(password)
 		});
 
 		//用户名或密码错误
-		if(Object.keys(userInfo).length === 0) {
+		if (Object.keys(userInfo).length === 0) {
 			this.fail(1, '用户名或密码错误');
 			return false;
 		}
 
 		//该账号已禁用
-		if(userInfo.status === 0) {
+		if (userInfo.status === 0) {
 			this.fail(1, '该账号已禁用');
 			return false;
 		}
@@ -37,10 +41,25 @@ class LoginController extends Controller {
 		}, this.app.config.jwt.secret, {
 			expiresIn: '60m'
 		});
-		// 调用 rotateCsrfSecret 刷新用户的 CSRF token
+		//刷新用户的 CSRF token
 		ctx.rotateCsrfSecret();
 		ctx.cookies.set('token', token);
-		this.success(userInfo[0]);
+		ctx.session.userinfo = JSON.parse(JSON.stringify(userInfo));
+		ctx.session.token = token;
+		this.success({
+			token: token
+		});
+	}
+
+	/**
+	 * 退出登录
+	 * @returns {Promise<void>}
+	 */
+	async logout() {
+		const {ctx} = this;
+		ctx.cookies.set('token', null);
+		ctx.session = null;
+		this.success(null, 0, '退出成功');
 	}
 }
 

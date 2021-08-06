@@ -9,4 +9,5 @@ module.exports = app => {
    */
   require('./router/admin/home')(app);
   require('./router/admin/login')(app);
+  require('./router/admin/user')(app);
 };
