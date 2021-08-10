@@ -14,16 +14,16 @@ class HomeController extends Controller {
 
 	emailTo(callback) {
 		const transporter = nodemailer.createTransport({
-			host: 'smtp.qq.com',
+			// host: 'smtp.qq.com',
             port: 465,
 			auth: {
-				user: 'zoemaxx@foxmail.com',
-				pass: 'ugqgxfpypyflcaja' //授权码,通过QQ获取
+				user: '@foxmail.com',
+				pass: '' //授权码,通过QQ获取
 
 			}
 		});
 		let mailOptions = {
-			from: 'zoemaxx@foxmail.com', // 发送者
+			from: '@foxmail.com', // 发送者
 			to: '', // 接受者,可以同时发送多个,以逗号隔开
 			subject: '测试标题', // 标题
             text: '文本',
